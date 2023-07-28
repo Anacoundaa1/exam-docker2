@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb_container
+    environment:
+      USERNAME:  ${USERNAME}
+      PASSWORD:  ${PASSWORD}
+      DATABASE:  ${DATABASE}
+    ports:
+      - "3306:3306"
+    volumes:
+    - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: DockerfileDev
+    restart: always
+    environment:
+      PORT: ${PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - '3000:${PORT}'
+    depends_on:
+      - mariadb
+    healthcheck:
+      test:
+        ['CMD', 'curl -f http://localhost:${PORT}/healthcheck']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  mariadb_data:
