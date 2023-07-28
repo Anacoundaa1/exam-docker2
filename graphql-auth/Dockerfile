@@ -1,11 +1,11 @@
 #Stage 1
-FROM node:14 AS build
+FROM node:16 AS build
 
 WORKDIR /app
 
 COPY package.json ./
 
-RUN npm install -g
+RUN npm install
 
 COPY . .
 
@@ -20,7 +20,7 @@ WORKDIR /app
 COPY --from=build /app/package.json /app/package-lock.json ./
 COPY --from=build /app/dist ./dist
 
-RUN npm ci --only=production
+RUN npm install --only=production
 
 ENV NODE_ENV=production
 
